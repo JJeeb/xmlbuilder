@@ -7,6 +7,8 @@ import xmlbuildr.beans.Author;
 import xmlbuildr.beans.Book;
 import xmlbuildr.xml.Element;
 
+import java.util.List;
+
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.io.Resources.getResource;
 import static java.util.Arrays.asList;
@@ -106,5 +108,52 @@ public class XmlTest {
                                 element("price", text("39.95"))
                         )
                 )));
+    }
+
+    @Test
+    public void bunchOfbeanTransformation() throws Exception {
+
+        final Function<Author, Element> authorToElement = new Function<Author, Element>() {
+
+            @Override
+            public Element apply(Author author) {
+                return element("author", text(author.getName()));
+            }
+        };
+
+
+        final Function<Book, Element> bookToElement = new Function<Book, Element>() {
+
+            @Override
+            public Element apply(Book book) {
+                return element("book", attr("category", book.getCategory()),
+                        element("title", attr("lang", book.getLang()), text(book.getTitle())),
+                        beans("authors", book.getAuthors(), authorToElement),
+                        element("year", text(book.getYear())),
+                        element("price", text(book.getPrice()))
+                );
+            }
+        };
+
+
+        final List<Book> books = asList(
+                new Book("Everyday Italian", "30.00", "2005", "en", "COOKING",
+                        asList(new Author("Giada De Laurentiis"))),
+
+                new Book("Harry Potter", "29.99", "2005", "en", "CHILDREN",
+                        asList(new Author("J K. Rowling"))),
+
+                new Book("XQuery Kick Start", "49.99", "2003", "en", "WEB",
+                        asList(new Author("James McGovern"),
+                                new Author("Per Bothner"),
+                                new Author("Kurt Cagle"),
+                                new Author("James Linn"),
+                                new Author("Vaidyanathan Nagarajan"))),
+
+                new Book("Learning XML", "39.95", "2003", "en", "WEB",
+                        asList(new Author("Erik T. Ray"))));
+
+        assertEquals(Resources.toString(getResource(getClass(), "books.xml"), UTF_8), 
+                xml(beans("bookstore", books, bookToElement)));
     }
 }
