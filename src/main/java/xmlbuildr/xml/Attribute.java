@@ -1,6 +1,6 @@
 package xmlbuildr.xml;
 
-public class Attribute {
+public class Attribute implements Node{
     
     private final String name;
     private final String value;

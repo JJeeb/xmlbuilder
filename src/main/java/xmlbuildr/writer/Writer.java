@@ -2,32 +2,69 @@ package xmlbuildr.writer;
 
 import xmlbuildr.xml.Attribute;
 import xmlbuildr.xml.Element;
+import xmlbuildr.xml.Node;
+import xmlbuildr.xml.TextNode;
 
 public class Writer {
 
     public String write(Element element) {
-        StringBuilder xml = new StringBuilder("<").append(element.getName());
+        return writeElement(element, 0).toString();
+    }
 
-        if(! element.getAttributes().isEmpty()){
-            for (Attribute attribute : element.getAttributes()) {
+    private StringBuilder writeElement(Element element, int depth) {
+        StringBuilder xml = new StringBuilder(indent(depth)).append("<").append(element.getName());
+
+        if (!element.getAttributes().isEmpty()) {
+            for (Node node : element.getAttributes()) {
+                Attribute attribute = (Attribute) node;
                 xml.append(" ").append(attribute.getName()).append("=\"").append(attribute.getValue()).append("\"");
             }
         }
-        
-        if (element.getChildren().isEmpty() && ! element.hasText()) {
-            xml.append("/>");
-        } else {
+
+        if (element.hasChildren()) {
             xml.append(">");
-            for (Element child : element.getChildren()) {
-                xml.append(write(child));
+
+            boolean hasTextChild = element.hasTextChild();
+            if (! hasTextChild) {
+                xml.append("\n");
             }
-            if(element.hasText()){
-                xml.append(element.getText());
+
+            for (Node child : element.getChildren()) {
+                xml.append(write(child, depth + 1));
             }
-            xml.append("</" + element.getName() + ">");
+
+            if (! hasTextChild) {
+                xml.append(indent(depth));
+            }
+
+            xml.append("</").append(element.getName()).append(">\n");
+        } else {
+            xml.append("/>\n");
         }
 
-        return xml.toString();
+        return xml;
+    }
+
+    private StringBuilder write(Node child, int i) {
+        StringBuilder xml = new StringBuilder();
+
+        if (child instanceof TextNode) {
+            xml.append(((TextNode) child).getText());
+        }
+
+        if (child instanceof Element) {
+            xml.append(writeElement((Element) child, i));
+        }
+
+        return xml;
+    }
+
+    private StringBuilder indent(int depth) {
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < 4 * depth; i++) {
+            spaces.append(" ");
+        }
+        return spaces;
     }
 
 }

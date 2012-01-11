@@ -1,0 +1,8 @@
+<bookstore>
+    <book id="3" category="web">
+        <author id="12"/>
+    </book>
+    <book id="2" category="children">
+        <author id="14">J K. Rowling</author>
+    </book>
+</bookstore>

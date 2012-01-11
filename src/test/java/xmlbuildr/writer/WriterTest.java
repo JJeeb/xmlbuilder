@@ -1,11 +1,16 @@
 package xmlbuildr.writer;
 
+import com.google.common.io.Resources;
 import org.junit.Test;
 import xmlbuildr.xml.Attribute;
 import xmlbuildr.xml.Element;
+import xmlbuildr.xml.Node;
+import xmlbuildr.xml.TextNode;
 
 import java.util.Collections;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.io.Resources.getResource;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
@@ -15,32 +20,32 @@ public class WriterTest {
 
     @Test
     public void writeEmptyElement() throws Exception {
-        assertEquals("<author/>",
+        assertEquals("<author/>\n",
                 writer.write(new Element("author",
                         Collections.<Attribute>emptyList(),
-                        Collections.<Element>emptyList())));
+                        Collections.<Node>emptyList())));
     }
 
     @Test
     public void writeTextNode() throws Exception {
-        assertEquals("<author>J K. Rowling</author>",
+        assertEquals("<author>J K. Rowling</author>\n",
                 writer.write(new Element("author",
                         Collections.<Attribute>emptyList(),
-                        Collections.<Element>emptyList(),
-                        "J K. Rowling")));
+                        asList(new TextNode("J K. Rowling"))
+                )));
     }
 
     @Test
     public void writeElementAttributes() throws Exception {
-        assertEquals("<author id=\"12\" category=\"web\"/>",
+        assertEquals("<author id=\"12\" category=\"web\"/>\n",
                 writer.write(new Element("author",
                         asList(new Attribute("id", "12"), new Attribute("category", "web")),
-                        Collections.<Element>emptyList())));
+                        Collections.<Node>emptyList())));
     }
 
     @Test
     public void writeNestedElement() throws Exception {
-        assertEquals("<bookstore><book id=\"3\" category=\"web\"><author id=\"12\"/></book><book id=\"2\" category=\"children\"><author id=\"14\">J K. Rowling</author></book></bookstore>",
+        assertEquals(Resources.toString(getResource(getClass(), "nestedElementsExpected.xml"), UTF_8),
                 writer.write(
                         new Element("bookstore",
                                 Collections.<Attribute>emptyList(),
@@ -48,12 +53,11 @@ public class WriterTest {
                                         asList(new Attribute("id", "3"), new Attribute("category", "web")),
                                         asList(new Element("author",
                                                 asList(new Attribute("id", "12")),
-                                                Collections.<Element>emptyList()))),
+                                                Collections.<Node>emptyList()))),
                                         new Element("book",
                                                 asList(new Attribute("id", "2"), new Attribute("category", "children")),
                                                 asList(new Element("author",
                                                         asList(new Attribute("id", "14")),
-                                                        Collections.<Element>emptyList(),
-                                                        "J K. Rowling")))))));
+                                                        asList(new TextNode("J K. Rowling")))))))));
     }
 }

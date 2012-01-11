@@ -1,42 +1,49 @@
 package xmlbuildr.xml;
 
+import com.google.common.base.Predicate;
+
 import java.util.List;
+
+import static com.google.common.collect.Iterators.any;
+
 
 public class Element implements Node {
 
     private final String name;
-    private final List<Attribute> attributes;
-    private final List<Element> children;
-    private final String text;
+    private final List<? extends  Node> attributes;
+    private final List<? extends Node> children;
 
-    public Element(String name, List<Attribute> attributes, List<Element> children, String text) {
-        this.attributes = attributes;
+
+    public Element(String name, List<? extends Node> attributes, List<? extends Node> children) {
         this.name = name;
+        this.attributes = attributes;
         this.children = children;
-        this.text = text;
-    }
-
-    public Element(String author, List<Attribute> attributes, List<Element> elements) {
-        this(author, attributes, elements, null);
     }
 
     public String getName() {
         return name;
     }
 
-    public List<Attribute> getAttributes() {
+    public List<? extends Node> getAttributes() {
         return attributes;
     }
 
-    public List<Element> getChildren() {
+    public List<? extends Node> getChildren() {
         return children;
     }
 
-    public String getText() {
-        return text;
+    public boolean hasChildren() {
+        return ! children.isEmpty();
     }
 
-    public boolean hasText() {
-        return text != null;
+    public boolean hasTextChild() {
+        return any(children.iterator(), isTextNode);
     }
+
+    private static final Predicate<Node> isTextNode = new Predicate<Node>() {
+        @Override
+        public boolean apply(Node node) {
+            return node instanceof TextNode;
+        }
+    };
 }
