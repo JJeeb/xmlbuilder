@@ -14,12 +14,7 @@ public class Writer {
     private StringBuilder writeElement(Element element, int depth) {
         StringBuilder xml = new StringBuilder(indent(depth)).append("<").append(element.getName());
 
-        if (!element.getAttributes().isEmpty()) {
-            for (Node node : element.getAttributes()) {
-                Attribute attribute = (Attribute) node;
-                xml.append(" ").append(attribute.getName()).append("=\"").append(escape(attribute.getValue())).append("\"");
-            }
-        }
+        writeAttributes(element, xml);
 
         if (element.hasChildren()) {
             xml.append(">");
@@ -43,6 +38,15 @@ public class Writer {
         }
 
         return xml;
+    }
+
+    private void writeAttributes(Element element, StringBuilder xml) {
+        if (!element.getAttributes().isEmpty()) {
+            for (Node node : element.getAttributes()) {
+                Attribute attribute = (Attribute) node;
+                xml.append(" ").append(attribute.getName()).append("=\"").append(escape(attribute.getValue())).append("\"");
+            }
+        }
     }
 
     private String escape(String value) {
@@ -70,8 +74,8 @@ public class Writer {
 
     private StringBuilder indent(int depth) {
         StringBuilder spaces = new StringBuilder();
-        for (int i = 0; i < 4 * depth; i++) {
-            spaces.append(" ");
+        for (int i = 0; i < depth; i++) {
+            spaces.append("    ");
         }
         return spaces;
     }
