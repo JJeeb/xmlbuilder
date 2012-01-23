@@ -44,6 +44,38 @@ public class WriterTest {
     }
 
     @Test
+    public void escapeEntitiesInAttributes() throws Exception {
+        assertEquals("<author category=\"&lt;web&gt;\"/>\n",
+                writer.write(new Element("author",
+                        asList(new Attribute("category", "<web>")),
+                        Collections.<Element>emptyList())));
+
+        assertEquals("<author category=\"&amp;web&amp;\"/>\n",
+                writer.write(new Element("author",
+                        asList(new Attribute("category", "&web&")),
+                        Collections.<Element>emptyList())));
+
+        assertEquals("<author category=\"&apos;web&apos;\"/>\n",
+                writer.write(new Element("author",
+                        asList(new Attribute("category", "'web'")),
+                        Collections.<Element>emptyList())));
+
+        assertEquals("<author category=\"&aquot;web&aquot;\"/>\n",
+                writer.write(new Element("author",
+                        asList(new Attribute("category", "\"web\"")),
+                        Collections.<Element>emptyList())));
+    }
+
+    @Test
+    public void escapeEntitiesInText() throws Exception {
+        assertEquals("<author>J K. &lt;Rowling&gt; &amp; Foo </author>\n",
+                writer.write(new Element("author",
+                        Collections.<Attribute>emptyList(),
+                        asList(new TextNode("J K. <Rowling> & Foo "))
+                )));
+    }
+
+    @Test
     public void writeNestedElement() throws Exception {
         assertEquals(Resources.toString(getResource(getClass(), "nestedElementsExpected.xml"), UTF_8),
                 writer.write(

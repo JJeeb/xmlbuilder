@@ -17,7 +17,7 @@ public class Writer {
         if (!element.getAttributes().isEmpty()) {
             for (Node node : element.getAttributes()) {
                 Attribute attribute = (Attribute) node;
-                xml.append(" ").append(attribute.getName()).append("=\"").append(attribute.getValue()).append("\"");
+                xml.append(" ").append(attribute.getName()).append("=\"").append(escape(attribute.getValue())).append("\"");
             }
         }
 
@@ -45,11 +45,20 @@ public class Writer {
         return xml;
     }
 
+    private String escape(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("'", "&apos;")
+                .replace("\"", "&aquot;");
+    }
+
+
     private StringBuilder write(Node child, int i) {
         StringBuilder xml = new StringBuilder();
 
         if (child instanceof TextNode) {
-            xml.append(((TextNode) child).getText());
+            xml.append(escape(((TextNode) child).getText()));
         }
 
         if (child instanceof Element) {
